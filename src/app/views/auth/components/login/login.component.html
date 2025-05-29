@@ -1,0 +1,50 @@
+<div class="login-wrapper min-h-screen flex items-center justify-center bg-gray-300">
+    <mat-card class="p-12 max-w-screen-sm login-container mx-auto">
+        <div class="login-header">
+            <h1 class="text-xl font-semibold">Вхід</h1>
+        </div>
+
+        @if (store.isLoading()) {
+        <div class="loading-overlay">
+            <div class="spinner">
+                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-cyan-500"></div>
+            </div>
+        </div>
+        } @else if (store.error()) {
+        <div class="error-message">
+            <p>Помилка: {{ store.error() }}</p>
+        </div>
+        }
+
+        <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm.form.value)">
+            <div class="form-group flex flex-col justify-center flex-start mt-8 min-w-xs">
+                <mat-form-field appearance="fill">
+                    <mat-label>Введіть адресу електронної пошти</mat-label>
+                    <input ngModel matInput name="email" type="email" class="text-base" required autofocus id="email" />
+                    @if (loginForm.form.get('email')?.invalid && loginForm.form.get('email')?.touched) {
+                    <mat-error> Будь ласка, введіть дійсну адресу електронної пошти. </mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>Пароль</mat-label>
+                    <input ngModel matInput name="password" type="password" class="text-base" required />
+                    @if (loginForm.form.get('password')?.invalid && loginForm.form.get('password')?.touched) {
+                    <mat-error> Пароль обов’язковий. </mat-error>
+                    }
+                </mat-form-field>
+            </div>
+
+            <div class="login-actions flex flex-col justify-center flex-start mt-8">
+                <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="loginForm.form.invalid || store.isLoading()"
+                >
+                    Увійти
+                </button>
+            </div>
+        </form>
+    </mat-card>
+</div>

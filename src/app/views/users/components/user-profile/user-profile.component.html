@@ -1,0 +1,111 @@
+<div flex flex-col items-center justify-center min-h-screen h-full>
+    <mat-card class="p-12 sm:mx-auto sm:h-auto sm:min-h-0 min-h-screen w-full max-w-screen-sm">
+        <div class="user-profile-header flex flex-row justify-between items-center">
+            <h1 class="text-xl font-semibold flex items-center justify-start">
+                <button
+                    mat-icon-button
+                    (click)="onCancel()"
+                    aria-label="Повернутися назад до списку користувачів"
+                    title="Повернутися назад до списку користувачів"
+                >
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                User Profile
+            </h1>
+
+            @if (store.editedUser() && (authStore.user()?.role?.toLocaleLowerCase() ===
+            UserRole.Admin.toLocaleLowerCase())) {
+            <button
+                mat-icon-button
+                (click)="onDeleteUser(store.editedUser()!)"
+                aria-label="Видалити користувача"
+                title="Видалити користувача"
+            >
+                <mat-icon>delete</mat-icon>
+            </button>
+            }
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="form-group flex flex-col justify-center flex-start mt-8">
+                <mat-form-field appearance="fill">
+                    <mat-label>Ім’я</mat-label>
+                    <input matInput formControlName="firstName" type="text" class="text-base" required />
+                    @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
+                    <mat-error> Ім'я є обов'язковим. </mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>Прізвище</mat-label>
+                    <input matInput formControlName="lastName" type="text" class="text-base" required />
+                    @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
+                    <mat-error> Прізвище є обов'язковим. </mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>Нікнейм</mat-label>
+                    <input matInput formControlName="nickName" type="text" class="text-base" />
+                    @if (form.get('nickName')?.invalid && form.get('nickName')?.touched) {
+                    <mat-error> Нікнейм є обов'язковим. </mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>Електронна пошта</mat-label>
+                    <input matInput formControlName="email" type="email" class="text-base" required />
+                    @if (form.get('email')?.invalid && form.get('email')?.touched) {
+                    <mat-error> Будь ласка, введіть дійсну адресу електронної пошти. </mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>Мобільний номер телефону</mat-label>
+                    <input matInput formControlName="mobilePhone" type="number" class="text-base" required />
+                    @if (form.get('mobilePhone')?.invalid && form.get('mobilePhone')?.touched) {
+                    <mat-error> Будь ласка, введіть мобільний номер телефону. </mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                    @if (form.get('avatar')?.value) {
+                    <img [src]="form.get('avatar')?.value" alt="Avatar" class="w-10 h-10 rounded-full object-cover" />
+                    } @else {
+                    <span>—</span>
+                    }
+                    <mat-label>Аватар</mat-label>
+                    <input matInput formControlName="avatar" type="avatar" class="text-base" />
+                    @if (form.get('avatar')?.invalid && form.get('avatar')?.touched) {
+                    <mat-error> Будь ласка, введіть URL для Вашого аватару. </mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>Місто</mat-label>
+                    <input type="text" matInput formControlName="city" [matAutocomplete]="auto" required />
+                    <mat-autocomplete #auto="matAutocomplete">
+                        @for (city of filteredCities$ | async; track city) {
+                        <mat-option [value]="city">{{ city }}</mat-option>
+                        }
+                    </mat-autocomplete>
+                    @if (form.get('city')?.invalid && form.get('city')?.touched) {
+                    <mat-error> Будь ласка, введіть місто. </mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>Адреса</mat-label>
+                    <input matInput formControlName="address" type="text" class="text-base" required />
+                    @if (form.get('address')?.invalid && form.get('address')?.touched) {
+                    <mat-error> Адреса є обов'язковою. </mat-error>
+                    }
+                </mat-form-field>
+
+                <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid" class="mt-20">
+                    Зберегти зміни
+                </button>
+            </div>
+        </form>
+    </mat-card>
+</div>

@@ -1,0 +1,28 @@
+<mat-card class="min-h-screen p-4">
+    <h3>
+        Вітаю,
+        {{
+            authStore.user()?.role && UserRoleDisplayNames[authStore.user()?.role || '']
+                ? UserRoleDisplayNames[authStore.user()?.role || ''] + ', '
+                : ''
+        }}
+        {{ authStore.user()?.email }}
+    </h3>
+
+    @if (store.isLoading()) {
+    <div class="loading-overlay">
+        <div class="spinner">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-cyan-500"></div>
+        </div>
+    </div>
+    } @else if (store.error()) {
+    <div class="error-message">
+        <p>Помилка: {{ store.error() }}</p>
+    </div>
+
+    } @if (store.editedUser()) {
+    <app-user-profile />
+    } @else {
+    <app-users-list [users]="store.filteredUsers()" />
+    }
+</mat-card>

@@ -1,0 +1,135 @@
+<div class="w-full flex justify-center items-end p-6 flex-col lg:flex-row lg:items-center lg:justify-between">
+    <button mat-stroked-button class="mb-4" (click)="onAddUser()"><mat-icon>add</mat-icon>Додати</button>
+
+    <div class="min-w-108">
+        <mat-form-field class="mr-2" appearance="fill">
+            <mat-label>Пошук</mat-label>
+            <input [formControl]="filteredValueCtrl" matInput (keyup)="applyFilter($event)" #input />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Деталі пошуку</mat-label>
+            <mat-select [formControl]="searchableColumnsCtrl" multiple>
+                @for (columnName of searchableColumns; track columnName) {
+                <mat-option [value]="columnName">{{ columnDisplayNames[columnName] }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <div class="min-w-29 flex items-end">
+        <button class="mr-4 min-w-40" mat-stroked-button (click)="onDonwloadInPDF()">
+            <mat-icon aria-label="Скачати в pdf форматі">file_download</mat-icon>Скачати в pdf
+        </button>
+        <button mat-stroked-button (click)="onPrint()">
+            <mat-icon aria-label="Роздрукувати">print</mat-icon>Роздрукувати
+        </button>
+    </div>
+</div>
+
+<div class="mat-elevation-z8 overflow-x-auto">
+    <table #table id="users-table" mat-table [dataSource]="dataSource" matSort class="min-w-full divide-y">
+        <!-- FirstName Column -->
+        <ng-container matColumnDef="firstName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-2">Ім’я</th>
+            <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row?.firstName }}</td>
+        </ng-container>
+
+        <!-- LastName Column -->
+        <ng-container matColumnDef="lastName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-2">Прізвище</th>
+            <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row?.lastName }}</td>
+        </ng-container>
+
+        <!-- NickName Column -->
+        <ng-container matColumnDef="nickName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-2">Нікнейм</th>
+            <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row?.nickName }}</td>
+        </ng-container>
+
+        <!-- Avatar Column -->
+        <ng-container matColumnDef="avatar">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-2">Аватар</th>
+            <td mat-cell *matCellDef="let row" class="px-4 py-2">
+                @if (row?.avatar) {
+                <img [src]="row?.avatar" alt="Avatar" class="w-10 h-10 rounded-full object-cover" />
+                } @else {
+                <span>—</span>
+                }
+            </td>
+        </ng-container>
+
+        <!-- Email Column -->
+        <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-2">Електронна пошта</th>
+            <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row?.email }}</td>
+        </ng-container>
+
+        <!-- MobilePhone Column -->
+        <ng-container matColumnDef="mobilePhone">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-2">Мобільний телефон</th>
+            <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row?.mobilePhone }}</td>
+        </ng-container>
+
+        <!-- City Column -->
+        <ng-container matColumnDef="city">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-2">Місто</th>
+            <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row?.city }}</td>
+        </ng-container>
+
+        <!-- Address Column -->
+        <ng-container matColumnDef="address">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-2">Адреса</th>
+            <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row?.address }}</td>
+        </ng-container>
+
+        <!-- Role Column -->
+        <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-2">Роль</th>
+            <td mat-cell *matCellDef="let row" class="px-4 py-2">
+                {{
+                    row?.role && UserRoleDisplayNames[row?.role || '']
+                        ? UserRoleDisplayNames[row?.role || '']
+                        : row?.role || ''
+                }}
+            </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="px-4 py-2">Дії</th>
+            <td mat-cell *matCellDef="let row" class="px-4 py-2">
+                @if (authStore.user()?.role === UserRole.Admin) {
+                <button mat-icon-button (click)="onDeleteUser($event, row)" aria-label="Видалити користувача">
+                    <mat-icon>delete</mat-icon>
+                </button>
+                <button mat-icon-button (click)="onEditUser(row)" aria-label="Редагувати користувача">
+                    <mat-icon>edit</mat-icon>
+                </button>
+
+                } @else if (authStore.user()?.role === UserRole.Operator) {
+                <button mat-icon-button (click)="onEditUser(row)" aria-label="Редагувати користувача">
+                    <mat-icon>edit</mat-icon>
+                </button>
+                }
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            (click)="onEditUser(row)"
+            class="cursor-pointer"
+        ></tr>
+
+        <!-- Row shown when there is no matching data -->
+        <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell px-4 py-2" [attr.colspan]="displayedColumns.length">
+                @if (input.value) { Немає даних, що відповідають фільтру "{{ input.value }}" } @else { Немає даних. }
+            </td>
+        </tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+</div>
